@@ -10,6 +10,9 @@ fusers=()
 # fusers means full name of the users
 # The list of normal users (based on my system)
 sysUsers=("root","daemon","bin","sys","sync","games","man","lp","mail","news","uucp","proxy","www-data","backup","list","irc","_apt","nobody","systemd-network","tss","systemd-timesync","messagebus","avahi-autoipd","usbmux","dnsmasq","avahi","speech-dispatcher","fwupd-refresh","saned","geoclue","polkitd","rtkit","colord","gnome-initial-setup","Debian-gdm")
+# Comment the following out if NOT on Ubuntu
+UbuntuSysUsers=("gnats","systemd-resolve","syslog","uuidd","tcpdump","cups-pk-helper","kernoops","hplip","whoopsie","pulse","gmd","systemd-coredump","sshd")
+sysUsers=(${sysUsers[@]} ${UbuntuSysUsers[@]})
 
 # Older code that does something?
 # while read p; do
@@ -72,8 +75,8 @@ echo "-------------"
 echo "LIST COMPILED"
 echo "-------------"
 echo
-echo "final list: $users"
-echo "final list (full names): $fname"
+echo "final list: ${users[@]}"
+echo "final list (full names): ${fname[@]}"
 echo "starting removals..."
 
 # purge list... welcome to not fun stuff...

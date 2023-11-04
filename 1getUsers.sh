@@ -1,12 +1,11 @@
 #! /bin/bash
 etcPasswd='/etc/passwd'
-echo "starting..."
 users=()
 fusers=()
 sysUsers=("root","daemon","bin","sys","sync","games","man","lp","mail","news","uucp","proxy","www-data","backup","list","irc","_apt","nobody","systemd-network","tss","systemd-timesync","messagebus","avahi-autoipd","usbmux","dnsmasq","avahi","speech-dispatcher","fwupd-refresh","saned","geoclue","polkitd","rtkit","colord","gnome-initial-setup","Debian-gdm")
+# Comment the following out if NOT on Ubuntu
 UbuntuSysUsers=("gnats","systemd-resolve","syslog","uuidd","tcpdump","cups-pk-helper","kernoops","hplip","whoopsie","pulse","gmd","systemd-coredump","sshd")
 sysUsers=(${sysUsers[@]} ${UbuntuSysUsers[@]})
-
 function exists_in_list() {
     LIST=$1
     DELIMITER=$2
@@ -22,20 +21,21 @@ function exists_in_list() {
 while read p; do
     uname=`echo $p | cut -d: -f1`
     fname=`echo $p | cut -d: -f5`
-    if !(exists_in_list "$sysUsers" "," "$uname"); then
+    if ! exists_in_list "$sysUsers" "," "$uname"; then
         users+=("$uname")
         fusers+=("$fname")
     fi
 done < $etcPasswd
+removalList=$1
 finalUsers=()
 finalFusers=()
 for (( i=0; i<${#users[@]}; i++ )); do 
-    if !(exists_in_list "$removalList" "," "${users[i]}"); then
+    if ! exists_in_list "$removalList" "," "${users[i]}"; then
+        echo "ADDING ${users[i]} as ${fusers[i]} to final list"
         finalUsers+=("${users[i]}")
         finalFusers+=("${fusers[i]}")
     fi
 done
-
 echo "-------------"
 echo "LIST COMPILED"
 echo "-------------"

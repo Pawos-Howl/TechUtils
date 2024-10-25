@@ -2,9 +2,6 @@
 
 echo "starting..."
 
-# echo "Searching /home (because it is safer lol and no system files)"
-# Set up the list to catch all media
-# Trying a string, hoping new lines get caught
 unauthFiles=()
 unauthExtensions=()
 # Media files to catch, and their lists
@@ -12,46 +9,6 @@ unauthExtensions=()
 audioExtensions=("m4a" "flac" "mp3" "pcm" "wav" "ogg")
 videoExtensions=("mp4" "mov" "avi" "mkv")
 imageExtensions=("jpg" "png" "tiff" "webp" "pdf" "gif" "eps" "raw")
-
-# The """CONFIG"""
-# Just comment out unwanted things (for now ;3)
-# This goes in later, now that I am going to have a param for it
-# unauthExtensions=(${unauthExtensions[@]} ${audioExtensions[@]})
-# unauthExtensions=(${unauthExtensions[@]} ${videoExtensions[@]})
-# unauthExtensions=(${unauthExtensions[@]} ${imageExtensions[@]})
-
-# Not using functions for this :3
-# Exists in list STOLEN
-# function exists_in_list() {
-#     LIST=$1
-#     DELIMITER=$2
-#     VALUE=$3
-#     LIST_WHITESPACES=`echo $LIST | tr "$DELIMITER" " "`
-#     for x in $LIST_WHITESPACES; do
-#         if [ "$x" = "$VALUE" ]; then
-#             return 0
-#         fi
-#     done
-#     return 1
-# }
-# This was also kinda just taken lol
-# This also isn't working, but not due to the funciton itself
-# function check_extension() {
-#     local extension_to_check="$1"
-#     echo "Var:\"$extension_to_check\""
-#     local extension_list=("$2")
-#     echo "List:\"$extension_list\""
-
-#     for ext in "${extension_list[@]}"; do
-#         echo "passing: \"$ext\" to check \"$extension_to_check\""
-#         if [ "$extension_to_check" = "$ext" ]; then
-#             echo "FINDS master ext: \"$ext\" from part: \"$extension_to_check\""
-#             return 0  # Extension found in the list
-#         fi
-#     done
-#     echo "NOT FINDS"
-#     return 1  # Extension not found in the list
-# }
 
 directory=""
 files=""
@@ -102,9 +59,6 @@ fi
 echo "Files param: $files"
 files=`echo "$files" | tr '[:upper:]' '[:lower:]'`
 
-# This does not work...
-# IFS=',' read -ra FilesToCheck <<< "$files"
-
 FilesToCheck=`echo $files | tr "," " "`
 echo "FILES TO CHECK: $FilesToCheck"
 for x in $FilesToCheck; do
@@ -127,38 +81,8 @@ for x in $FilesToCheck; do
         echo "unknown \"$x\""
     fi
 done
-# echo $unauthExtensions
-# if exists_in_list "$files" "," "all"; then
-#     unauthExtensions=(${unauthExtensions[@]} ${audioExtensions[@]})
-#     unauthExtensions=(${unauthExtensions[@]} ${videoExtensions[@]})
-#     unauthExtensions=(${unauthExtensions[@]} ${imageExtensions[@]})
-# elif exists_in_list "$files" "," "audio"; then
-#     unauthExtensions=(${unauthExtensions[@]} ${audioExtensions[@]})
-# elif exists_in_list "$files" "," "video"; then
-#     unauthExtensions=(${unauthExtensions[@]} ${videoExtensions[@]})
-# elif exists_in_list "$files" "," "image"; then
-#     unauthExtensions=(${unauthExtensions[@]} ${imageExtensions[@]})
-# fi
-# echo $unauthExtensions
-
-# Because something isn't workin...
 echo "UNAUTH EXTENSIONS: ${unauthExtensions[@]}"
 
-# Goes though every file in "PATHS.txt"
-# while read -r p; do
-#     echo "reading path \"$p\""
-#     tmpExtension="${p##*.}"
-#     echo "looking at extension \"$tmpExtension\""
-#     echo "Passing ext:\"$tmpExtension\" in the list of \"${unauthExtensions[@]}\""
-#     if check_extension "$tmpExtension" "$unauthExtensions"; then
-#         echo "EXTENSION \"$tmpExtension\" CAUGHT"
-#         unauthFiles+=("$p")
-#     else
-#         echo "extension ok"
-#     fi
-# done < "PATHS.txt"
-# the calling a function method isn't working due to how this list is... the function will not take the value correctly
-# trying embedding the function's job in the only place it is called
 while read -r p; do
     echo "reading path \"$p\""
     tmpExtension="${p##*.}"

@@ -2,8 +2,7 @@
 A set of Debian bash based utilities for managing systems that have some support for Ubuntu... kinda. For an explaination on how to run this, [click here](#execution)
 
 ### NOTES:
-The files starting with a "0" are not different, they are just smaller and will not take up as much space (they have no code comments or older tried code).
-The files starting with a "1" are as minimal as they can get. These are the recommended files due to their smaller size and only outputting needed information.
+Yes, I did overhaul the whole project. Why? My organization was terrible, and I shouldn't have a seperate version of each program based on comment count.
 
 ## getUsers.sh
 This small script can be used to spot unautorized users. It has an embedded system users list (which might not catch everything) and the ability to use your own list without modifying the code! The way to specify this second list is seperated by comas. (ex: ./getUsers.sh paw,pawos,wolf)
@@ -15,9 +14,11 @@ This script can be used to find media files (audio, video, and image) that are o
 This is a script that might run some "red flags" on your system, but they can be safely disregarded. These tools are ones typically associated (from what I have done) as either backdoors or malicious programs. This could find some programs that have been causing some attacks (or could be the future reason for an attack). However, some things that this tool flags could be intended in your system. Use at your own discression.
 
 ## Execution
-To run these, you have to give the execution parameter to the file. To do this, you can run
+NOTE: I fixed the execution flag. it should be fine now.
+
+To run these, you have to give the execution flag to the file. To do this, you can run
 ```
-chmod 744 [script name].sh
+chmod +x [script name].sh
 ```
 and in a terminal line again run
 ```

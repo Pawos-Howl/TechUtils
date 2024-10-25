@@ -22,19 +22,18 @@ issueProgramFull=()
 while read -r p; do
     echo "Reading line \"$p\""
     echo "This is the double 'i' check, and the value is \"${p:0:2}\""
-    program=`echo $p | cut -d " " -f2` # that is the program name... i spent way too long thinking it was the double i qwp
+    program=`echo $p | cut -d " " -f2`
     echo "The program name should be \"$program\""
     if [ "${p:0:2}" = "ii" ]; then
         echo "inner checks on \"$program\""
-        badProgram=false # this is just a small thing as i did before to figure out if the program isn't good
+        badProgram=false
         for x in $programNames; do
-            # I am doing the program names check on the ENTIRE line, because it might be a lib package of the program, which we also want deleted ;3
+            # doing the program names check on the ENTIRE line, because it might be a lib package of the program, which we also want deleted
             echo "Looking for \"$x\" in line \"$p\""
             if [[ *$p* == *$x* ]]; then
                 badProgram=true
             fi
         done
-        # This checks the whole line for stuff in the list of bad
         for x in $programContains; do
             echo "Looking for \"$x\" in line \"$p\""
             if [[ *$p* == *$x* ]]; then
@@ -42,7 +41,6 @@ while read -r p; do
             fi
         done
         
-        # Check if the line was marked as bad
         echo "Status of badProgram var: $badProgram"
         if [ $badProgram = true ]; then
             echo "program \"$program\" found as bad, adding to lists"
@@ -57,7 +55,6 @@ while read -r p; do
     fi
 done < "PROGRAMS.txt"
 
-# return all the things that are marked as SUS
 echo "-------------"
 echo "LIST COMPILED"
 echo "-------------"

@@ -1,24 +1,54 @@
 #! /bin/bash
 
-echo "starting..."
-etcPasswd='/etc/passwd'
+EXCLUSIONLIST=("root" "git") # exclude users
+notusrpaths=("/usr/bin/nologin" "/bin/false") # shell paths for not loginable users
+usrpaths=("/bin/bash" "/usr/bin/bash") # shell paths for users that can login
+
+#TODO: make it all one loop and have only the final list be posted to.
 
 users=()
 fulluser=()
+usershell=()
+removalList=()
 
-# this is not realllly how its supposed to work. these are either nologin, or root.
-# The list of normal users (based on my system)
-sysUsers=("root" "daemon" "bin" "sys" "sync" "games" "man" "lp" "mail" "news" "uucp" "proxy" "www-data" "backup" "list" "irc" "_apt" "nobody" "systemd-network" "tss" "systemd-timesync" "messagebus" "avahi-autoipd" "usbmux" "dnsmasq" "avahi" "speech-dispatcher" "fwupd-refresh" "saned" "geoclue" "polkitd" "rtkit" "colord" "gnome-initial-setup" "Debian-gdm")
-# Comment the following out if NOT on Ubuntu
-UbuntuSysUsers=("gnats" "systemd-resolve" "syslog" "uuidd" "tcpdump" "cups-pk-helper" "kernoops" "hplip" "whoopsie" "pulse" "gmd" "systemd-coredump" "sshd")
+function help() {
+    echo "#### getUsers Helper ####"
+    echo "-h to print this menu"
+    echo "-v to print verbose"
+    echo "for the main arguments, use ONE list seperated by commas (ex: user,usr1,usr4)"
+    exit 0
+}
+# print if verbose is on
+function printV() {
+    if [[ $verbose == "t" ]]; then
+        echo $1
+    fi
+}
+# arg parser
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -v)
+      verbose="t"
+      shift # past argument
+      ;;
+    -h)
+      help
+      ;;
+    *)
+      IFS=',' read -a removalList <<< "$1"
+      shift
+      ;;
+  esac
+done
 
-sysUsers=(${sysUsers[@]} ${UbuntuSysUsers[@]})
+printV "Removal list: $removalList"
 
 function exists_in_list() {
-    LIST=$1
-    DELIMITER=$2
-    VALUE=$3
-    LIST_WHITESPACES=`echo $LIST | tr "$DELIMITER" " "`
+    VALUE=$1
+    shift # go past the first input
+    LIST=$@
+    
+    LIST_WHITESPACES=`echo $LIST | tr " " " "`
     for x in $LIST_WHITESPACES; do
         if [ "$x" = "$VALUE" ]; then
             return 0
@@ -27,54 +57,53 @@ function exists_in_list() {
     return 1
 }
 
-nonuserpafs=("/usr/bin/nologin" "/bin/false" "/usr/bin/git-shell")
 # effectively, are they a system user or a loginable user
+# 0 is login, 1 is what i know is no login, 2 is i have no clue
 function canlogin() {
     SHELL=$1
-
+    if exists_in_list "$SHELL" "${usrpaths[@]}"; then # "${array[@]}"
+        return 0
+    elif exists_in_list "$SHELL" "${notusrpaths[@]}"; then
+        return 1
+    else
+        return 2
+    fi
 }
 
 while read p; do
     uname=`echo $p | cut -d: -f1`
     fname=`echo $p | cut -d: -f5`
-    if exists_in_list "$sysUsers" " " "$uname"; then
-        echo "IGNORING $uname as $fname"
+    shell=`echo $p | cut -d: -f7`
+    if exists_in_list "$uname" "${EXCLUSIONLIST[@]}"; then
+        printV "IGNORING $uname as $fname (in the exclusion list)"
     else
-        echo "FOUND $uname as $fname"
+        printV "FOUND $uname as $fname"
         users+=("$uname")
         fulluser+=("$fname")
+        usershell+=("$shell")
     fi
-done < $etcPasswd
-
-echo "-------------"
-echo "LIST COMPILED"
-echo "-------------"
-echo
-echo "final list: ${users[@]}"
-echo "final list (full names): ${fname[@]}"
-echo "starting removals..."
-
-# purge list... welcome to not fun stuff...
-# formatted with comas to seperate
-# EX: var,usr,stuff,aaa
-removalList=$1
-echo "Removal list: $removalList"
+done < '/etc/passwd'
 
 usersLen=${#users[@]}
-
-echo "Pulling removal list from users list..."
-echo
 
 # Users after purge
 finalUsers=()
 finalfulluser=()
+finalushell=()
 for (( i=0; i<$usersLen; i++ )); do 
-    if exists_in_list "$removalList" " " "${users[i]}"; then
-        echo "IGNORING ${users[i]} as ${fulluser[i]} from final list"
+    if exists_in_list "${users[i]}" "${removalList[@]}"; then
+        printV "IGNORING ${users[i]} as ${fulluser[i]} from final list (excluded user)"
     else
-        echo "ADDING ${users[i]} as ${fulluser[i]} to final list"
-        finalUsers+=("${users[i]}")
-        finalfulluser+=("${fulluser[i]}")
+        # do one more check on the shell
+        # echo `canlogin "${usershell[i]}"`
+        # echo "${usershell[i]}"
+        if canlogin "${usershell[i]}"; then
+            printV "ADDING ${users[i]} as ${fulluser[i]} to final list"
+            finalUsers+=("${users[i]}")
+            finalfulluser+=("${fulluser[i]}")
+        else
+            printV "IGNORING ${users[i]} as ${fulluser[i]} from final list (not loginable shell/not recognized)"
+        fi
     fi
 
 done
@@ -84,7 +113,7 @@ echo "LIST COMPILED"
 echo "-------------"
 echo
 if [ -z "$finalUsers" ]; then
-    echo "No one that is not supposed to be on the system is present. You are safe ;3"
+    echo "No one that is not supposed to be on the system is present. You are fine"
 else
     echo "Final list:"
     for (( i=0; i<${#finalUsers[@]}; i++ )); do

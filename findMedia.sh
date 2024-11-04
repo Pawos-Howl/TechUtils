@@ -13,6 +13,14 @@ imageExtensions=("jpg" "png" "tiff" "webp" "pdf" "gif" "eps" "raw")
 directory=""
 files=""
 
+# TODO: steal better boilerplate code for this
+# -v for verbose to say other things so you know it is running
+# -V for even more verbose
+# -s for a short check of just mp3/png
+# have a check for "all" or "audio" or "video" or "image"
+# last check should be if it is a directory
+# failing all of them makes it exit 1
+
 # Param count checks
 if [ "$#" -eq 0 ]; then
     # NO arguments at all
@@ -26,13 +34,11 @@ elif [ "$#" -eq 1 ]; then
     directory=$1
     echo "setting \"files\" to default"
     files="all"
-
 elif [ "$#" -eq 2 ]; then
     # Both arguments
     echo "found both args, setting"
     directory=$1
     files=$2
-
 else
     # too many arguments
     echo "Too many parameters..."
@@ -95,7 +101,7 @@ while read -r p; do
     for ext in "${unauthExtensions[@]}"; do
         echo "passing: \"$ext\" to check \"$tmpExtension\""
         if [ "$tmpExtension" = "$ext" ]; then
-            echo "FINDS master ext: \"$ext\" from part: \"$tmpExtension\""
+            echo "FIND ext: \"$ext\" from part: \"$tmpExtension\""
             finds=true  # Extension found in the list
         fi
     done
@@ -114,7 +120,7 @@ echo "-------------"
 echo
 # Final prints
 if [ -z "$unauthFiles" ]; then
-    echo "No unauthorized files were found on the system. You can sleep easy knowing your system has no distractions ;3"
+    echo "No unauthorized files were found on the system. You can sleep easy knowing your system has no distractions"
 else
     echo "Final list:"
     for (( i=0; i<${#unauthFiles[@]}; i++ )); do

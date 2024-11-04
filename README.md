@@ -1,4 +1,6 @@
 # TechUtils
+Disclaimer, I am a silly programmer 90% of the time. In this case, I did a few things that are not advisiable. As such, that code will be replaced. (NOTE: I did replace it). It is still left because someone might need it for their own sake and programming.
+
 A set of Debian bash based utilities for managing systems that have some support for Ubuntu... kinda. For an explaination on how to run this, [click here](#execution)
 
 ### NOTES:
